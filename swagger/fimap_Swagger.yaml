@@ -2025,6 +2025,104 @@ paths:
                   $ref: '#/components/schemas/RecomendacaoIA'
         '401':
           $ref: '#/components/responses/NaoAutenticado'
+    post:
+      operationId: gerarRecomendacaoIA
+
+      tags:
+        - IA
+
+      summary: Gerar recomendação utilizando IA
+
+      description: >
+        Envia um prompt para o serviço de Inteligência Artificial do FIMAP.
+        A categoria identifica a área na qual a recomendação está sendo
+        solicitada, permitindo que o mesmo endpoint seja utilizado para
+        diferentes funcionalidades do sistema, como investimentos, metas
+        financeiras, gastos, economia, empréstimos e outras análises.
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecomendacaoIARequest'
+
+            examples:
+
+              simulacaoInvestimento:
+                summary: Recomendação para simulação de investimento
+                value:
+                  categoria: "simulacao_investimento"
+                  conteudo: >
+                    Analise a seguinte simulação de investimento.
+                    O usuário possui R$ 2.000,00 inicialmente, pretende
+                    realizar aportes mensais de R$ 500,00 durante 36 meses
+                    e considera uma rentabilidade de 0,8% ao mês.
+                    O objetivo é criar uma reserva de emergência.
+                    Avalie se essa estratégia é adequada e apresente
+                    recomendações para melhorar o planejamento.
+
+              metaFinanceira:
+                summary: Recomendação para meta financeira
+                value:
+                  categoria: "meta_financeira"
+                  conteudo: >
+                    Analise a meta financeira do usuário.
+                    Atualmente ele possui R$ 8.000,00 e deseja atingir
+                    R$ 30.000,00 até 10/10/2028.
+                    Ele consegue investir aproximadamente R$ 800,00 por mês.
+                    Verifique se a meta é viável e apresente alternativas
+                    caso seja necessário aumentar o aporte ou alterar o prazo.
+
+              gastos:
+                summary: Recomendação para análise de gastos
+                value:
+                  categoria: "gastos"
+                  conteudo: >
+                    Analise os gastos mensais do usuário e identifique
+                    despesas que podem ser reduzidas. Apresente as três
+                    principais oportunidades de economia e explique
+                    o impacto de cada uma.
+
+    responses:
+
+      '200':
+        description: Recomendação gerada pela Inteligência Artificial
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecomendacaoIAResponse'
+
+            example:
+              categoria: "simulacao_investimento"
+              recomendacao:
+                titulo: "Sua estratégia é adequada"
+                conteudo: >
+                  A estratégia apresentada é consistente com o objetivo
+                  de formar uma reserva de emergência. Recomenda-se
+                  priorizar investimentos de baixo risco e alta liquidez.
+                impacto: "positivo"
+
+      '400':
+        description: Dados da requisição inválidos
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Erro'
+
+      '401':
+        $ref: '#/components/responses/NaoAutenticado'
+
+      '500':
+        description: Erro ao processar a solicitação da Inteligência Artificial
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Erro'
   /ia/recomendacoes/{recomendacaoId}:
     parameters:
     - $ref: '#/components/parameters/RecomendacaoId'
@@ -3274,11 +3372,8 @@ components:
         chat_id:
           type: integer
           format: int32
-        papel:
-          type: string
-          enum:
-          - usuario
-          - assistente
+        papel: 
+          type: boolean
           description: 'ATENÇÃO: o modelo lógico não tem coluna para isso (tbl_mensagem.id_usuario é obrigatório).
             Ver observações de ajuste do modelo.'
         conteudo:
